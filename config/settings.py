@@ -11,9 +11,11 @@ class Settings:
     DB_NAME: str = os.getenv("DB_NAME")
     DB_USER: str = os.getenv("DB_USER")
     DB_HOST: str = os.getenv("DB_HOST")
-    secret_key: str = os.getenv("SECRET")
-    algorithm: str = os.getenv("ALGORITHM")
-    access_token_expire: int = 600  # seconds
+    APP_HOST: str = os.getenv("APP_HOST")
+    APP_PORT: int = int(os.getenv("APP_PORT"))
+    SECRET: str = os.getenv("SECRET")
+    ALGORITHM: str = os.getenv("ALGORITHM")
+    ACCESS_TOKEN_EXPIRE_TIMEOUT: int = 600  # seconds
 
 
 settings = Settings()

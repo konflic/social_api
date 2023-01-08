@@ -11,3 +11,5 @@ MIN_LENGTH_POST_TITLE: Final[int] = 6
 MAX_LENGTH_POST_TITLE: Final[int] = 30
 MIN_LENGTH_POST_CONTENT: Final[int] = 50
 MAX_LENGTH_POST_CONTENT: Final[int] = 500
+
+TEST_PASSWORD: Final[str] = "password1!"

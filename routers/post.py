@@ -30,7 +30,7 @@ async def get_posts(
 
 
 @router.get("/{user_id}/posts")
-async def get_posts(user_id: int, db: Session = Depends(get_db)):
+async def get_user_posts(user_id: int, db: Session = Depends(get_db)):
     """Get posts of any other user"""
     return db.query(Post).filter(Post.owner_id == user_id).all()
 
@@ -41,6 +41,16 @@ async def get_post(
     db: Session = Depends(get_db),
 ):
     """Get single post by id"""
+
+    post = db.query(Post).filter(Post.id == post_id).first()
+
+    print(post)
+
+    if not post:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND, detail=f"post {post_id} not found"
+        )
+
     return (
         db.query(
             Post,
@@ -89,7 +99,7 @@ async def put_post(
     if new_post.title == "" or new_post.content == "":
         raise HTTPException(
             status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"the post must contains content and title",
+            detail="Post must contains content and title",
         )
     try:
         db.add(new_post)
@@ -127,7 +137,7 @@ async def patch_post(
     if post.title is None and post.content is None:
         raise HTTPException(
             status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"to update data in post must contains content or title",
+            detail="to update data in post must contains content or title",
         )
 
     if post.title is None:

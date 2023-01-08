@@ -2,6 +2,7 @@ from fastapi import APIRouter, status, HTTPException, Depends, Body
 from utils.crypt import hash
 from db import models, schemas, database
 from sqlalchemy.orm import Session
+import psycopg2
 from pydantic import Required
 
 router = APIRouter(tags=["Signup"])
@@ -16,15 +17,15 @@ async def signup(
         user_email_exists = (
             db.query(models.User).filter(models.User.email == user.email).first()
         )
-    except Exception as error:
+    except psycopg2.DatabaseError as error:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"An error occurred while creating the user",
+            detail=f"An error '{error}' occurred while creating the user",
         )
     if user_email_exists:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=f"User with this email is already exist",
+            detail="User with this email is already exist",
         )
     hashed_password = hash(user.password)
     user.password = hashed_password
@@ -37,6 +38,6 @@ async def signup(
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"An error occurred while creating the user",
+            detail=f"An error '{error}' occurred while creating the user",
         )
     return new_user

@@ -1,3 +1,4 @@
+import psycopg2
 from fastapi import APIRouter, status, Response, HTTPException, Depends
 from oauth2 import create_access_token
 from utils.crypt import verify
@@ -10,9 +11,9 @@ router = APIRouter(tags=["Auth"])
 
 @router.post("/token", response_model=schemas.TokenResponse)
 def login(
-    respone: Response,
-    user_credentails: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(database.get_db),
+        respone: Response,
+        user_credentails: OAuth2PasswordRequestForm = Depends(),
+        db: Session = Depends(database.get_db),
 ):
     try:
         user = (
@@ -20,16 +21,16 @@ def login(
             .filter(models.User.username == user_credentails.username)
             .first()
         )
-    except:
+    except psycopg2.DatabaseError as error:
         raise HTTPException(
-            status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"An error occurred while connecting to the database",
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error '{error}' occurred while connecting to the database",
         )
     if not user:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, detail=f"Invalid Credentials")
+        raise HTTPException(status.HTTP_403_FORBIDDEN, detail="Invalid Credentials")
     if not verify(user_credentails.password, user.password):
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail=f"Invalid Credentials"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Invalid Credentials"
         )
 
     access_token = create_access_token(
